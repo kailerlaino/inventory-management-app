@@ -1,5 +1,34 @@
-* {
-  box-sizing: border-box;
+/* globals.css */
+
+html,
+body {
   padding: 0;
   margin: 0;
+  font-family: 'Roboto', 'Arial', sans-serif;
+  background-color: #ecf0f1;
+  color: #2c3e50;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Add any other global styles you want here */

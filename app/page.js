@@ -6,6 +6,7 @@ import { Box, Button, Modal, Stack, TextField, Typography, AppBar, Toolbar, Cont
 import { collection, deleteDoc, doc, getDocs, query, getDoc, setDoc } from 'firebase/firestore';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import '@/styles/globals.css'
 
 const theme = createTheme({
   palette: {
@@ -19,9 +20,6 @@ const theme = createTheme({
       default: '#ecf0f1',
       paper: '#ffffff',
     },
-  },
-  typography: {
-    fontFamily: 'Roboto, Arial, sans-serif',
   },
 });
 
@@ -90,7 +88,7 @@ export default function Home() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Box sx={{ flexGrow: 1, minHeight: '100vh' }}>
         <AppBar position="static">
           <Toolbar>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
