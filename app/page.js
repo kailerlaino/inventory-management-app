@@ -1,9 +1,29 @@
 'use client'
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { firestore } from "@/firebase";
-import { Box, Button, Modal, Stack, TextField, Typography } from "@mui/material";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { Box, Button, Modal, Stack, TextField, Typography, AppBar, Toolbar, Container, Paper } from "@mui/material";
 import { collection, deleteDoc, doc, getDocs, query, getDoc, setDoc } from 'firebase/firestore';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#2c3e50',
+    },
+    secondary: {
+      main: '#e74c3c',
+    },
+    background: {
+      default: '#ecf0f1',
+      paper: '#ffffff',
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, Arial, sans-serif',
+  },
+});
 
 export default function Home() {
   const [inventory, setInventory] = useState([]);
@@ -39,8 +59,7 @@ export default function Home() {
 
     await updateInventory();
   }
-
-
+  
   const removeItem = async (item) => {
     const normalizedItem = item.toLowerCase();
     const docRef = doc(collection(firestore, 'inventory'), item);
@@ -70,51 +89,93 @@ export default function Home() {
   );
 
   return (
-    <Box
-      width="100vw"
-      height="100vh"
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      gap={2}
-    >
-      <TextField
-        variant="outlined"
-        placeholder="Search items..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        style={{ marginBottom: '20px' }}
-      />
-      <Modal open={open} onClose={handleClose}>
-        <Box
-          position="absolute"
-          top="50%"
-          left="50%"
-          width={400}
-          bgcolor="white"
-          border="2px solid #000"
-          boxShadow={24}
-          p={4}
-          display="flex"
-          flexDirection="column"
-          gap={3}
-          sx={{
-            transform: 'translate(-50%, -50%)'
-          }}
-        >
-          <Typography variant="h6">Add Item</Typography>
-          <Stack width="100%" direction="row" spacing={2}>
+    <ThemeProvider theme={theme}>
+      <Box sx={{ flexGrow: 1, minHeight: '100vh', bgcolor: 'background.default' }}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Inventory Management
+            </Typography>
+            <Button color="inherit" onClick={handleOpen} startIcon={<AddIcon />}>
+              Add New Item
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <Container maxWidth="md" sx={{ mt: 4 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Search items..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{ mb: 3 }}
+          />
+          <Paper elevation={3}>
+            <Box p={3}>
+              <Typography variant="h4" color="primary" gutterBottom>
+                Inventory Items
+              </Typography>
+              <Stack spacing={2}>
+                {filteredInventory.map(({ name, quantity }) => (
+                  <Paper key={name} elevation={1} sx={{ p: 2 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                      <Typography variant="h6">
+                        {name.charAt(0).toUpperCase() + name.slice(1)}
+                      </Typography>
+                      <Box display="flex" alignItems="center">
+                        <Typography variant="h6" sx={{ mr: 2 }}>
+                          {quantity}
+                        </Typography>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="primary"
+                          onClick={() => addItem(name)}
+                          sx={{ mr: 1 }}
+                        >
+                          <AddIcon />
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => removeItem(name)}
+                        >
+                          <RemoveIcon />
+                        </Button>
+                      </Box>
+                    </Box>
+                  </Paper>
+                ))}
+              </Stack>
+            </Box>
+          </Paper>
+        </Container>
+        <Modal open={open} onClose={handleClose}>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 400,
+              bgcolor: 'background.paper',
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 2,
+            }}
+          >
+            <Typography variant="h6" gutterBottom>Add Item</Typography>
             <TextField
               variant="outlined"
               fullWidth
               value={itemName}
-              onChange={(e) => {
-                setItemName(e.target.value)
-              }}
+              onChange={(e) => setItemName(e.target.value)}
+              sx={{ mb: 2 }}
             />
             <Button
-              variant="outlined"
+              variant="contained"
+              fullWidth
               onClick={() => {
                 addItem(itemName);
                 setItemName('');
@@ -123,68 +184,9 @@ export default function Home() {
             >
               Add
             </Button>
-          </Stack>
-        </Box>
-      </Modal>
-      <Button
-        variant="contained"
-        onClick={() => {
-          handleOpen();
-        }}
-      >
-        Add New Item
-      </Button>
-      <Box border="1px solid #333">
-        <Box
-          width="800px"
-          height="100px"
-          bgcolor="ADD8E6"
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <Typography variant="h2" color="#333">
-            Inventory Items
-          </Typography>
-        </Box>
-        <Stack width="800px" height="300px" spacing={2} overflow="auto">
-          {filteredInventory.map(({ name, quantity }) => (
-            <Box
-              key={name}
-              width="100%"
-              minHeight="150px"
-              display="flex"
-              alignItems="center"
-              justifyContent="space-between"
-              bgColor="#f0f0f0" 
-              padding={5}
-            >
-              <Typography variant="h3" color="#333" textAlign="center">
-                {name.charAt(0).toUpperCase() + name.slice(1)}
-              </Typography>
-              <Typography variant="h3" color="#333" textAlign="center">
-                {quantity}
-              </Typography>
-              <Stack direction="row" spacing={2}>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  addItem(name)
-                }}>
-                Add
-              </Button>
-              <Button
-                variant="contained"
-                onClick={() => {
-                  removeItem(name)
-                }}>
-                Remove
-              </Button>
-              </Stack>
-            </Box>
-          ))}
-        </Stack>
+          </Box>
+        </Modal>
       </Box>
-    </Box>
-  )
+    </ThemeProvider>
+  );
 }
